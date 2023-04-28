@@ -22,6 +22,25 @@ inputs:
     description: 'Whether to run scorecard as part of the analysis (no/yes/verbose default to "no")'
     required: false
     default: "no"
+  sarif:
+    description: 'Whether to output results in SARIF format and upload them to the Security Center'
+    required: false
+    default: "true"
 runs:
-  using: "node16"
-  main: "index.js"
+  using: "composite"
+  steps:
+    - name: Set Up NodeJS
+      uses: actions/setup-node@v3
+      with:
+          node-version: '16'
+    - name: "Check out Legitify"
+      uses: actions/checkout@v2
+    - name: "Run Legitify"
+      uses: shell 
+      run: |
+        node index.js
+    - name: "Upload SARIF results"
+      if: inputs.sarif == 'true'
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: results.sarif

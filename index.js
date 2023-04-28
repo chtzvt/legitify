@@ -42,7 +42,7 @@ async function executeLegitify(token, args) {
   options.silent = true
 
   try {
-    await exec.exec('"./legitify"', ["analyze", ...args, "--output-format", "markdown"], options);
+    await exec.exec('"./legitify"', ["analyze", ...args], options);
     fs.writeFileSync(process.env.GITHUB_STEP_SUMMARY, myOutput)
   } catch (error) {
     fs.writeFileSync(process.env.GITHUB_STEP_SUMMARY, "legitify failed with:\n" + myError)
@@ -103,6 +103,14 @@ function generateAnalyzeArgs(repo, owner) {
     return args;
   }
 
+  if (core.getInput("sarif") === "true") {
+    args.push(["--output-format", "sarif", "--output-file", "results.sarif"]);
+    args.push(core.getInput("repositories"));
+    return args;
+  } else {
+    args.push(["--output-format", "markdown"]);
+  }
+  
   args.push("--org");
   args.push(owner);
 
